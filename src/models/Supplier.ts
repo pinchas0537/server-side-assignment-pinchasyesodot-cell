@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { ISupplier } from "../interfaces/supplier";
+import { ISupplier } from "../interfaces/Supplier";
 
 const SupplierSchema = new Schema<ISupplier>({
     name: { type: String,
