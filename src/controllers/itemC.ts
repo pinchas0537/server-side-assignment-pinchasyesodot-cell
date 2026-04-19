@@ -1,11 +1,15 @@
 import { Request, Response } from "express";
-import { createNewItem, getAllItems } from "../services/itemS.js";
+import { createNewItem, getAllItems, updateItemInDB, verifyProfitMargin } from "../services/itemS.js";
 import logger from "../utils/Logger.js";
 import { IItemBase } from "../validations/item.validation.js";
+import { ISupplier } from "../interfaces/Supplier.js";
+import { ISItem } from "../interfaces/Item.js";
 
 export async function createItem(req: Request, res: Response): Promise<void> {
     try {
         const itemData: IItemBase = req.body;
+        const supplier = res.locals.supplier as ISupplier;
+        verifyProfitMargin({ name: itemData.name!, supplierId: supplier }, itemData.consumerPrice!);
         const newItem = await createNewItem(itemData);
         logger.info("Item created successfully", { itemId: newItem._id });
         res.status(201).json(newItem);
@@ -32,5 +36,26 @@ export const getItemById = (_req: Request, res: Response): void => {
     } catch (error) {
         logger.error("Failed to fetch item", { error: (error as Error).message });
         res.status(500).json({ error: (error as Error).message });
+    }
+};
+
+
+export const updateItem = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const {id} = req.params as { id: string };
+        const itemData: Partial<IItemBase> = req.body;
+        const currentItem = res.locals.item as ISItem & {supplierId:ISupplier};
+        if(itemData.consumerPrice !== undefined){
+          verifyProfitMargin(currentItem,itemData.consumerPrice)
+        }
+        const updatedItem = await updateItemInDB(id,itemData);
+        if(!updatedItem){
+            res.status(404).json({ error: "Item not found" });
+            return;
+        }
+        res.status(200).json(updatedItem);
+    } catch (error) {
+        logger.error("Failed to update item", { error: (error as Error).message, body: req.body });
+        res.status(400).json({ error: (error as Error).message });
     }
 };
