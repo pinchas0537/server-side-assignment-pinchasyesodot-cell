@@ -2,6 +2,7 @@ import express from "express";
 import { connectDB } from "./config/db";
 import orderR from "./routers/orderR";
 import logger from "./utils/Logger";
+import itemR from "./routers/itemR";
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 });
 
 app.use("/api/orders", orderR)
+
+app.use("/api/items", itemR)
 
 async function startServer() {
     try {
