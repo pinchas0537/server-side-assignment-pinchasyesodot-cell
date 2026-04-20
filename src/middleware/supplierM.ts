@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { getSupplierById, getSupplierByName } from "../services/supplierS.js";
 
-export const isNsameUnique = async(req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const isNsameUnique = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const { name } = req.body;
         if (!name) {
@@ -18,7 +18,7 @@ export const isNsameUnique = async(req: Request, res: Response, next: NextFuncti
     }
 };
 
-export async function supplierExists(req: Request, res: Response, next: NextFunction): Promise<void> {
+export const supplierExists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const id = req.params.id || req.body.id || req.body.supplierId;
         if (!id) {
@@ -35,4 +35,4 @@ export async function supplierExists(req: Request, res: Response, next: NextFunc
     } catch (error) {
         res.status(500).json({ error: "Internal server error during supplier validation" });
     }
-}
+};

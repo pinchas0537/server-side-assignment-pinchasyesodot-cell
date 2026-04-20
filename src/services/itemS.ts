@@ -3,7 +3,7 @@ import { IItemBase } from "../validations/item.validation.js";
 import { ISItem } from "../interfaces/Item.js";
 import { ISupplier, ISupplierItem } from "../interfaces/Supplier.js";
 
-export async function createNewItem(itemData: IItemBase): Promise<ISItem> {
+export const createNewItem = async (itemData: IItemBase): Promise<ISItem> => {
     try {
         const newItem = new Item(itemData as unknown as ISItem);
         return await newItem.save();
@@ -11,11 +11,11 @@ export async function createNewItem(itemData: IItemBase): Promise<ISItem> {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
         throw new Error(`Failed to create new item: ${errorMessage}`);
     }
-}
+};
 
 export const getAllItems = async (): Promise<ISItem[]> => {
     try {
-        return await Item.find().populate("supplierId","-__v").select("-__v").lean();
+        return await Item.find().populate("supplierId", "-__v").select("-__v").lean();
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
         throw new Error(`Failed to fetch items: ${errorMessage}`);
@@ -32,16 +32,21 @@ export const getItemById = async (itemId: string): Promise<ISItem | null> => {
 };
 
 export const verifyProfitMargin = (item: { name: string; supplierId: ISupplier }, newPrice: number): void => {
-    const supplier = item.supplierId;
-    const supplierItem = supplier.items.find((si: ISupplierItem) => si.itemName === item.name);
-    if (!supplierItem) {
-        throw new Error(`Item ${item.name} not found in supplier's catalog`);
-    }
-    const minPrice = supplierItem.price * 1.3;
-    if (newPrice < minPrice) {
-        throw new Error(
-            `Price too low. According to store rules, price must be at least 30% above supplier price (${minPrice.toFixed(2)})`
-        );
+    try {
+        const supplier = item.supplierId;
+        const supplierItem = supplier.items.find((si: ISupplierItem) => si.itemName === item.name);
+        if (!supplierItem) {
+            throw new Error(`Item ${item.name} not found in supplier's catalog`);
+        }
+        const minPrice = supplierItem.price * 1.3;
+        if (newPrice < minPrice) {
+            throw new Error(
+                `Price too low. According to store rules, price must be at least 30% above supplier price (${minPrice.toFixed(2)})`
+            );
+        }
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        throw new Error(`Failed to fetch item: ${errorMessage}`);
     }
 };
 

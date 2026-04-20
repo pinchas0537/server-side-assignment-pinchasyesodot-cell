@@ -12,17 +12,17 @@ const PORT = 3000;
 app.use(express.json());
 
 app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
-    logger.info("Incoming request", { method: req.method, url: req.url ,IP: req.ip} );
+    logger.info("Incoming request", { method: req.method, url: req.url, IP: req.ip });
     next();
 });
 
-app.use("/api/orders", orderR)
+app.use("/api/orders", orderR);
 
-app.use("/api/items", itemR)
+app.use("/api/items", itemR);
 
-app.use("/api/suppliers", supplierR)
+app.use("/api/suppliers", supplierR);
 
-async function startServer() {
+const startServer = async () => {
     try {
         await connectDB();
         app.listen(PORT, () => {
@@ -32,5 +32,5 @@ async function startServer() {
         console.error("Failed to start server:", error);
         process.exit(1);
     }
-}
+};
 startServer();

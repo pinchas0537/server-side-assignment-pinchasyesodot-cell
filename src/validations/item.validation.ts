@@ -5,11 +5,15 @@ export const itemValidationSchema = z.object({
     consumerPrice: z.number().positive("Consumer price must be a positive number"),
     stock: z.number().int().min(0, "Stock cannot be negative"),
     category: z.string().trim().min(1, "Category is required"),
-    supplierId: z.string().trim().min(1, "Supplier ID is required").length(24, "Supplier ID must be a valid MongoDB ObjectId"),
+    supplierId: z
+        .string()
+        .trim()
+        .min(1, "Supplier ID is required")
+        .length(24, "Supplier ID must be a valid MongoDB ObjectId"),
 });
 
-export const createItemSchema = itemValidationSchema
+export const createItemSchema = itemValidationSchema;
 
-export const updateItemSchema = itemValidationSchema.partial()
+export const updateItemSchema = itemValidationSchema.partial();
 
 export type IItemBase = z.infer<typeof itemValidationSchema>;

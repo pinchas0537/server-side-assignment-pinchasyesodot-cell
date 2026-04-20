@@ -57,10 +57,10 @@ SupplierSchema.pre("findOneAndDelete", async function () {
 });
 
 SupplierSchema.pre("findOneAndUpdate", async function () {
-    const update = this.getUpdate() as UpdateQuery<ISupplier>;
-    const items = update.$set?.items || update.items;
-    if (!Array.isArray(items)) return;
     try {
+        const update = this.getUpdate() as UpdateQuery<ISupplier>;
+        const items = update.$set?.items || update.items;
+        if (!Array.isArray(items)) return;
         const supplierId = this.getQuery()._id;
         const ItemModel = model("Item");
         const operations = items.map((item) => ({

@@ -15,7 +15,7 @@ const ItemSchema = new Schema<ISItem>(
 ItemSchema.post("save", async function () {
     try {
         const SupplierModel = model("Supplier");
-        const originalPrice = ( this.consumerPrice / 1.3 ).toFixed(2);
+        const originalPrice = (this.consumerPrice / 1.3).toFixed(2);
         await SupplierModel.findByIdAndUpdate(this.supplierId, {
             $push: {
                 items: {

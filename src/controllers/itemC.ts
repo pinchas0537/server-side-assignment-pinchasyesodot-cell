@@ -5,7 +5,7 @@ import { IItemBase } from "../validations/item.validation.js";
 import { ISupplier } from "../interfaces/Supplier.js";
 import { ISItem } from "../interfaces/Item.js";
 
-export async function createItem(req: Request, res: Response): Promise<void> {
+export const createItem = async (req: Request, res: Response): Promise<void> => {
     try {
         const itemData: IItemBase = req.body;
         const supplier = res.locals.supplier as ISupplier;
@@ -17,7 +17,7 @@ export async function createItem(req: Request, res: Response): Promise<void> {
         logger.error("Failed to create item", { error: (error as Error).message, body: req.body });
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 export const getItems = async (_req: Request, res: Response): Promise<void> => {
     try {
@@ -39,17 +39,16 @@ export const getItemById = (_req: Request, res: Response): void => {
     }
 };
 
-
 export const updateItem = async (req: Request, res: Response): Promise<void> => {
     try {
-        const {id} = req.params as { id: string };
+        const { id } = req.params as { id: string };
         const itemData: Partial<IItemBase> = req.body;
-        const currentItem = res.locals.item as ISItem & {supplierId:ISupplier};
-        if(itemData.consumerPrice !== undefined){
-          verifyProfitMargin(currentItem,itemData.consumerPrice)
+        const currentItem = res.locals.item as ISItem & { supplierId: ISupplier };
+        if (itemData.consumerPrice !== undefined) {
+            verifyProfitMargin(currentItem, itemData.consumerPrice);
         }
-        const updatedItem = await updateItemInDB(id,itemData);
-        if(!updatedItem){
+        const updatedItem = await updateItemInDB(id, itemData);
+        if (!updatedItem) {
             res.status(404).json({ error: "Item not found" });
             return;
         }

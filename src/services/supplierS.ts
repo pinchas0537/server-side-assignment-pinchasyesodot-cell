@@ -17,7 +17,7 @@ export const getAllSuppliers = async (): Promise<ISupplier[]> => {
         return await Supplier.find().select("-__v").lean();
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        throw new Error(`Failed to fetch suppliers: ${errorMessage}`);
+        throw new Error(`Failed to fetch supplier: ${errorMessage}`);
     }
 };
 

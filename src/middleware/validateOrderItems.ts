@@ -3,7 +3,7 @@ import { Item } from "../models/Item.js";
 import { ISItem } from "../interfaces/Item.js";
 import { Types } from "mongoose";
 
-export async function validateOrderItems(req: Request, res: Response, next: NextFunction):Promise<void> {
+export const validateOrderItems = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const { items } = req.body;
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -27,4 +27,4 @@ export async function validateOrderItems(req: Request, res: Response, next: Next
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};

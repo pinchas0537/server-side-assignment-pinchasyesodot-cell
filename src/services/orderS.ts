@@ -2,7 +2,7 @@ import { IOrder } from "../interfaces/Order.js";
 import { OrderModel } from "../models/Order.js";
 import { getValidatedProfit, updateItemStock } from "../utils/orderHelpers.js";
 
-export async function processNewOrder(orderData: IOrder): Promise<IOrder> {
+export const processNewOrder = async (orderData: IOrder): Promise<IOrder> => {
     try {
         const totalProfit = await getValidatedProfit(orderData.items);
         const finalOrder = new OrderModel({
@@ -16,23 +16,21 @@ export async function processNewOrder(orderData: IOrder): Promise<IOrder> {
         return savedOrder;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        console.error("Order processing failed:", errorMessage);
-        throw new Error(errorMessage);
+        throw new Error(`Failed to fetch order: ${errorMessage}`);
     }
-}
+};
 
-export async function getAllOrders(): Promise<IOrder[]> {
+export const getAllOrders = async (): Promise<IOrder[]> => {
     try {
         const orders = await OrderModel.find().select("-__v").lean();
         return orders;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        console.error("Failed to retrieve orders:", errorMessage);
-        throw new Error(errorMessage);
+        throw new Error(`Failed to fetch order: ${errorMessage}`);
     }
-}
+};
 
-export async function getOrderById(orderId: string): Promise<IOrder | null> {
+export const getOrderById = async (orderId: string): Promise<IOrder | null> => {
     try {
         const order = await OrderModel.findById(orderId).select("-__v").lean();
         if (!order) {
@@ -41,12 +39,11 @@ export async function getOrderById(orderId: string): Promise<IOrder | null> {
         return order;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        console.error(`Failed to retrieve order with ID ${orderId}:`, errorMessage);
-        throw new Error(errorMessage);
+        throw new Error(`Failed to fetch order: ${errorMessage}`);
     }
-}
+};
 
-export async function updateOrderInDB(orderId: string, orderData: IOrder): Promise<IOrder | null> {
+export const updateOrderInDB = async (orderId: string, orderData: IOrder): Promise<IOrder | null> => {
     try {
         const existingOrder = await OrderModel.findById(orderId).lean();
         if (!existingOrder) throw new Error(`Order with ID ${orderId} not found`);
@@ -76,18 +73,16 @@ export async function updateOrderInDB(orderId: string, orderData: IOrder): Promi
         return updatedOrder;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        console.error(`Failed to update order with ID ${orderId}:`, errorMessage);
-        throw new Error(errorMessage);
+        throw new Error(`Failed to fetch order: ${errorMessage}`);
     }
-}
+};
 
-export async function deleteOrderById(orderId: string): Promise<IOrder | null> {
+export const deleteOrderById = async (orderId: string): Promise<IOrder | null> => {
     try {
         const deletedOrder = await OrderModel.findByIdAndDelete(orderId).lean();
         return deletedOrder;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-        console.error(`Failed to delete order with ID ${orderId}:`, errorMessage);
-        throw new Error(errorMessage);
+        throw new Error(`Failed to fetch order: ${errorMessage}`);
     }
-}
+};
