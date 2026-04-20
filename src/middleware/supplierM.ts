@@ -5,8 +5,7 @@ export const isNsameUnique = async(req: Request, res: Response, next: NextFuncti
     try {
         const { name } = req.body;
         if (!name) {
-            res.status(400).json({ error: "Name is required" });
-            return;
+            return next();
         }
         const existingSupplier = await getSupplierByName(name);
         if (existingSupplier) {
@@ -21,7 +20,7 @@ export const isNsameUnique = async(req: Request, res: Response, next: NextFuncti
 
 export async function supplierExists(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const id = req.params.id || req.body.id ;
+        const id = req.params.id || req.body.id || req.body.supplierId;
         if (!id) {
             res.status(400).json({ error: "Supplier ID is required" });
             return;

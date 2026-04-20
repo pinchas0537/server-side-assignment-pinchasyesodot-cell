@@ -1,22 +1,18 @@
-import { ISItem } from "../interfaces/Item.js";
 import { IOrder } from "../interfaces/Order.js";
 import { Item } from "../models/Item.js";
 import { OrderModel } from "../models/Order.js";
-import { calculateOrderProfoit, validateStock } from "../utils/orderHelpers.js";
+import { getValidatedProfit, updateItemStock } from "../utils/orderHelpers.js";
 
 export async function processNewOrder(orderData: IOrder): Promise<IOrder> {
     try {
-        const itemIds = orderData.items.map((item) => item.itemId);
-        const dbItems: ISItem[] = await Item.find({ _id: { $in: itemIds } }).lean();
-        validateStock(dbItems, orderData.items);
-        const totalProfit = calculateOrderProfoit(dbItems, orderData.items);
+        const totalProfit = await getValidatedProfit(orderData.items);
         const finalOrder = new OrderModel({
             ...orderData,
             shopProfit: totalProfit,
         });
         const savedOrder = await finalOrder.save();
         for (const orderItem of orderData.items) {
-            await Item.findByIdAndUpdate(orderItem.itemId, { $inc: { stock: -orderItem.quantity } });
+            await updateItemStock(orderItem.itemId.toString(), orderItem.quantity);
         }
         return savedOrder;
     } catch (error: unknown) {
@@ -53,10 +49,31 @@ export async function getOrderById(orderId: string): Promise<IOrder | null> {
 
 export async function updateOrderInDB(orderId: string, orderData: IOrder): Promise<IOrder | null> {
     try {
-        const updatedOrder = await OrderModel.findByIdAndUpdate(orderId, orderData, {
-            new: true,
-            runValidators: true,
-        }).lean();
+        const existingOrder = await OrderModel.findById(orderId).lean();
+        if (!existingOrder) throw new Error(`Order with ID ${orderId} not found`);
+        for (const newItem of orderData.items) {
+            const oldItem = existingOrder.items.find((item) => item.itemId.toString() === newItem.itemId.toString());
+            const quantityDiff = oldItem ? newItem.quantity - oldItem.quantity : newItem.quantity;
+            if (quantityDiff !== 0) {
+                await updateItemStock(newItem.itemId.toString(), quantityDiff);
+            }
+        }
+        for (const oldItem of existingOrder.items) {
+            const stillExists = orderData.items.find(
+                (newItem) => newItem.itemId.toString() === oldItem.itemId.toString()
+            );
+            if (!stillExists) {
+                await updateItemStock(oldItem.itemId.toString(), -oldItem.quantity);
+            }
+        }
+        const totalProfit = await getValidatedProfit(orderData.items);
+        const updatedOrder = await OrderModel.findByIdAndUpdate(
+            orderId,
+            { ...orderData, shopProfit: totalProfit },
+            { new: true, runValidators: true }
+        )
+            .select("-__v")
+            .lean();
         return updatedOrder;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";

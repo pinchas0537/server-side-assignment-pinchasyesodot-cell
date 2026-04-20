@@ -15,7 +15,7 @@ export async function createItem(req: Request, res: Response): Promise<void> {
         res.status(201).json(newItem);
     } catch (error) {
         logger.error("Failed to create item", { error: (error as Error).message, body: req.body });
-        res.status(400).json({ error: (error as Error).message });
+        res.status(500).json({ error: (error as Error).message });
     }
 }
 

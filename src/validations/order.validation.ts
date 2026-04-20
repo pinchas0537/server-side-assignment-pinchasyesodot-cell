@@ -9,7 +9,7 @@ export const orderValidationSchema = z.object({
         })
     ).min(1, "Order must have at least one item")
     .max(10, "Order cannot have more than 10 items"),
-    shopProfit: z.number().positive()
+    shopProfit: z.number().positive().optional(),
 })
 .refine((data) => {
     const totalQuantity = data.items.reduce((sum, item) => sum + item.quantity, 0);

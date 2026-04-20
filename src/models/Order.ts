@@ -7,6 +7,7 @@ const OrderSchema = new Schema<IOrder>(
             {
                 itemId: { type: Schema.Types.ObjectId, ref: "Item", required: true },
                 quantity: { type: Number, required: true, min: 1 },
+                _id: false
             },
         ],
         address: { type: String, required: true },

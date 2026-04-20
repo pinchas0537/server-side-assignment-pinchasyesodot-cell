@@ -1,3 +1,4 @@
+import { UpdateQuery } from "mongoose";
 import { ISupplier } from "../interfaces/Supplier";
 import { Supplier } from "../models/Supplier";
 
@@ -40,7 +41,15 @@ export const getSupplierByName = async (name: string): Promise<ISupplier | null>
 
 export const updateSupplierInDB = async (id: string, updateData: Partial<ISupplier>): Promise<ISupplier | null> => {
     try {
-        return await Supplier.findByIdAndUpdate(id, updateData, { new: true, runValidators: true })
+        const { items, ...supplierData } = updateData;
+        const finalUpdateData: UpdateQuery<ISupplier> = {};
+        if (Object.keys(supplierData).length > 0) {
+            finalUpdateData.$set = supplierData;
+        }
+        if (items && items.length > 0) {
+            finalUpdateData.$push = { items:{ $each: items } };
+        }
+        return await Supplier.findByIdAndUpdate(id, finalUpdateData, { new: true, runValidators: true })
             .select("-__v")
             .lean();
     } catch (error: unknown) {

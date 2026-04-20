@@ -1,7 +1,7 @@
 import {z} from "zod";
 
 export const supplierSchema = z.object({
-    name: z.string().trim().min(2, "Name must be at least 2 characters long"),
+    name: z.string().trim().min(2, "Name must be at least 2 characters long").optional(),
     items: z.array(
         z.object({
             itemName: z.string().trim().min(2, "Item name must be at least 2 characters long"),
