@@ -13,20 +13,20 @@ The system will be a **Backend** service built using **Node.js** and **Express.j
 The system will store the following information:
 
 - **Items:**
-  - name
-  - price
-  - stock
-  - category
-  - supplier
+    - name
+    - price
+    - stock
+    - category
+    - supplier
 - **Suppliers:**
-  - name
-  - items and their price
+    - name
+    - items and their price
 - **Orders:**
-  - items and their quantity
-  - address
-  - order date
-  - shop profit
- 
+    - items and their quantity
+    - address
+    - order date
+    - shop profit
+
 * Assume that supplier prices are fixed and cannot be changed.
 
 The design of the store is completely up to you. You can use as many collections as you want and have any relations you want between them. However, you must be able to manage the above information and include the features mentioned below.
@@ -34,31 +34,28 @@ The design of the store is completely up to you. You can use as many collections
 ## :hammer_and_wrench: Rules
 
 - Inventory Management:
-
-  - Each item price must be at least 30% higher than the supplier price. Our store cannot operate at a loss.
-  - The stock should be automatically updated based on the orders.
-  - If Item is out of stock, return an appropriate status code.
+    - Each item price must be at least 30% higher than the supplier price. Our store cannot operate at a loss.
+    - The stock should be automatically updated based on the orders.
+    - If Item is out of stock, return an appropriate status code.
 
 - Order Constraints:
-
-  - Item quantity in a new order must be less than or equal to the stock in order to proceed.
-  - Every order can have a maximum of 10 unique items.
-  - A customer can order a maximum of 50 items in total.
+    - Item quantity in a new order must be less than or equal to the stock in order to proceed.
+    - Every order can have a maximum of 10 unique items.
+    - A customer can order a maximum of 50 items in total.
 
 - Collections Reliability:
-  - If a supplier gets deleted. All the supplier items should be deleted automatically from the store items.
-  - If a supplier item gets deleted. All the store items should be deleted automatically.
-  - If a supplier item price changes. All the store items should be updated automatically. (The price difference should be at least 30%)
-  - When supplier name changes, all the store items should be updated automatically.
+    - If a supplier gets deleted. All the supplier items should be deleted automatically from the store items.
+    - If a supplier item gets deleted. All the store items should be deleted automatically.
+    - If a supplier item price changes. All the store items should be updated automatically. (The price difference should be at least 30%)
+    - When supplier name changes, all the store items should be updated automatically.
 
 - Revenue Analysis (on demand):
-
-  - Get the monthly revenue of the store. (last 30 days)
-  - Get the weekly most profitable category. (last 7 days)
-  - Get the daily most profitable item. (last 24 hours)
-  - Find the items with the highest and lowest profit margin. (all time)
-  - Get the supplier whose items brought the most profit. (all time)
-  - Get the total amount of money the shop spent on each supplier, including both past orders and the value of items currently in stock, sorted in descending order. (all time)
+    - Get the monthly revenue of the store. (last 30 days)
+    - Get the weekly most profitable category. (last 7 days)
+    - Get the daily most profitable item. (last 24 hours)
+    - Find the items with the highest and lowest profit margin. (all time)
+    - Get the supplier whose items brought the most profit. (all time)
+    - Get the total amount of money the shop spent on each supplier, including both past orders and the value of items currently in stock, sorted in descending order. (all time)
 
 ## :pushpin: Standards
 
@@ -91,8 +88,6 @@ The design of the store is completely up to you. You can use as many collections
 5. Implement the revenue analysis features.
 6. Implement search routes for every collection.
 
-
 <h2 id="bonus-content">🎯 Bonus ★</h2>
 
 **Now, supplier prices are no longer constant**. reconsider your architecture and evaluate how this impacts your server logic.
-

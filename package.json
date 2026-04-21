@@ -1,0 +1,35 @@
+{
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "env-var": "^7.5.0",
+    "express": "^5.2.1",
+    "mongoose": "^9.4.1",
+    "tsx": "^4.21.0",
+    "winston": "^3.19.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/winston": "^2.4.4"
+  },
+  "name": "server-side-assignment-pinchasyesodot-cell",
+  "version": "1.0.0",
+  "description": "Welcome to the Midterm Server-side Assignment. Here you'll have the chance to show us what you've learned so far! :muscle:",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx watch src/app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yesodot-course/server-side-assignment-pinchasyesodot-cell.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/yesodot-course/server-side-assignment-pinchasyesodot-cell/issues"
+  },
+  "homepage": "https://github.com/yesodot-course/server-side-assignment-pinchasyesodot-cell#readme"
+}
