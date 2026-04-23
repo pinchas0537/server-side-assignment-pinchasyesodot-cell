@@ -1,19 +1,25 @@
 import { z } from "zod";
+import { paramsIdSchema, objectIdSchema } from "./common.validation.js";
 
-export const itemValidationSchema = z.object({
+const itemValidationSchema = z.object({
     name: z.string().trim().min(2, "Name must be at least 2 characters long"),
     consumerPrice: z.number().positive("Consumer price must be a positive number"),
     stock: z.number().int().min(0, "Stock cannot be negative"),
     category: z.string().trim().min(1, "Category is required"),
-    supplierId: z
-        .string()
-        .trim()
-        .min(1, "Supplier ID is required")
-        .length(24, "Supplier ID must be a valid MongoDB ObjectId"),
+    supplierId: objectIdSchema,
 });
 
-export const createItemSchema = itemValidationSchema;
+export const createItemSchema = z.object({
+    body: itemValidationSchema
+});
 
-export const updateItemSchema = itemValidationSchema.partial();
+export const updateItemSchema = z.object({
+    params: paramsIdSchema,
+    body: itemValidationSchema.partial()
+});
+
+export const itemIdSchema = z.object({
+    params: paramsIdSchema
+});
 
 export type IItemBase = z.infer<typeof itemValidationSchema>;

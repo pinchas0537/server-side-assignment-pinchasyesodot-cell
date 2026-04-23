@@ -6,7 +6,7 @@ export const validateRequest =
     (schema: z.ZodSchema) =>
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            schema.parse(req.body);
+            schema.parseAsync({body:req.body, params:req.params});
             return next();
         } catch (error) {
             if (error instanceof ZodError) {

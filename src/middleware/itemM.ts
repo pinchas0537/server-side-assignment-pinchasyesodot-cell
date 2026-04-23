@@ -21,12 +21,9 @@ export const verifySupplierExists = async (req: Request, res: Response, next: Ne
     }
 };
 
-export const validateItemId = async (req: Request, res: Response, next: NextFunction) => {
+export const checkItemExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
-        if (!isValidObjectId(id)) {
-            return res.status(400).json({ error: "Invalid Item ID format" });
-        }
         const item = await Item.findById(id).populate("supplierId");
         if (!item) {
             return res.status(404).json({ error: "Item not found" });

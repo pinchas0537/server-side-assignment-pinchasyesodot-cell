@@ -4,6 +4,8 @@ import orderR from "./routers/orderR";
 import logger from "./utils/Logger";
 import itemR from "./routers/itemR";
 import supplierR from "./routers/supplierR";
+import analyticsR from "./routers/analyticsR";
+
 
 const app = express();
 
@@ -21,6 +23,8 @@ app.use("/api/orders", orderR);
 app.use("/api/items", itemR);
 
 app.use("/api/suppliers", supplierR);
+
+app.use("/api/analytics", analyticsR);
 
 const startServer = async () => {
     try {
