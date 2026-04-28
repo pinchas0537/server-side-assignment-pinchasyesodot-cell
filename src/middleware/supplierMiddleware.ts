@@ -4,7 +4,7 @@ import { getSupplierById, getSupplierByName } from "../services/supplierService.
 export const isNameUnique = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const { name } = req.body;
-        const {id} = req.params;
+        const { id } = req.params;
         if (!name) {
             if (!id) {
                 res.status(400).json({ error: "Supplier name is required" });
@@ -19,7 +19,7 @@ export const isNameUnique = async (req: Request, res: Response, next: NextFuncti
         }
         next();
     } catch (error) {
-       next(error);
+        next(error);
     }
 };
 

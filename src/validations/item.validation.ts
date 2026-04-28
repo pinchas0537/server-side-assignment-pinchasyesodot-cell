@@ -15,10 +15,9 @@ export const createItemSchema = z.object({
 
 export const updateItemSchema = z.object({
     params: paramsIdSchema,
-    body: itemValidationSchema.partial().refine(
-        (body)=> Object.keys(body).length > 0,
-        { message: "At least one field must be provided for update" }
-    ),
+    body: itemValidationSchema
+        .partial()
+        .refine((body) => Object.keys(body).length > 0, { message: "At least one field must be provided for update" }),
 });
 
 export const itemIdSchema = z.object({

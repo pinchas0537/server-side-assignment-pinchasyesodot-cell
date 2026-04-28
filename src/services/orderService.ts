@@ -91,13 +91,13 @@ export const updateOrderInDB = async (orderId: string, orderData: OrderBase): Pr
                 itemId: new Types.ObjectId(item.itemId),
             })),
         };
-        const updatedOrder = await OrderModel.findByIdAndUpdate(orderId, updateData, {
+        const updatedOrder = (await OrderModel.findByIdAndUpdate(orderId, updateData, {
             new: true,
             runValidators: true,
             session,
         })
             .select("-__v")
-            .lean() as IOrder | null;
+            .lean()) as IOrder | null;
         await session.commitTransaction();
         return updatedOrder;
     } catch (error: unknown) {
