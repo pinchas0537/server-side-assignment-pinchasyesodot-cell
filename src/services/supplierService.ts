@@ -1,4 +1,4 @@
-import { ClientSession, startSession, UpdateQuery } from "mongoose";
+import { ClientSession, startSession } from "mongoose";
 import { ISupplier, ISupplierItem } from "../interfaces/Supplier";
 import { Supplier } from "../models/Supplier";
 import { Item } from "../models/Item";
