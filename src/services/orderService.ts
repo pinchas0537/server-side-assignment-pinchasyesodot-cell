@@ -1,9 +1,11 @@
-import { Types, startSession } from "mongoose";
+import { AnyBulkWriteOperation, ClientSession, Types, startSession } from "mongoose";
 import { CustomError } from "../interfaces/Error.js";
 import { IOrder, IOrderItemInput } from "../interfaces/Order.js";
 import { OrderModel } from "../models/Order.js";
 import { processOrderFinancials, updateItemStock } from "../utils/orderHelpers.js";
 import { OrderBase } from "../validations/order.validation.js";
+import { Item } from "../models/Item.js";
+import { ISItem } from "../interfaces/Item.js";
 
 export const processNewOrder = async (orderData: OrderBase | IOrder): Promise<IOrder> => {
     const session = await startSession();
@@ -113,11 +115,34 @@ export const updateOrderInDB = async (orderId: string, orderData: OrderBase): Pr
 };
 
 export const deleteOrderById = async (orderId: string): Promise<IOrder | null> => {
+    const session: ClientSession = await OrderModel.startSession();
     try {
-        const deletedOrder = await OrderModel.findByIdAndDelete(orderId).lean();
+        let deletedOrder: IOrder | null = null;
+        await session.withTransaction(async () => {
+            deletedOrder = await OrderModel.findByIdAndDelete(orderId).session(session).lean();
+            if (!deletedOrder) {
+                const error = new Error(`Order with ID ${orderId} not found`) as CustomError;
+                error.statusCode = 404;
+                throw error;
+            }
+            const bulkOps: AnyBulkWriteOperation<ISItem>[] = deletedOrder.items.map((item) => ({
+                updateOne: {
+                    filter: { _id: item.itemId as unknown as Types.ObjectId },
+                    update: { $inc: { stock: item.quantity } },
+                },
+            }));
+            if (bulkOps.length > 0) {
+                await Item.bulkWrite(bulkOps, { session });
+            }
+        });
         return deletedOrder;
     } catch (error: unknown) {
+        if ((error as CustomError).statusCode) {
+            throw error;
+        }
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
         throw new Error(`Failed to delete order: ${errorMessage}`);
+    } finally {
+        session.endSession();
     }
 };
