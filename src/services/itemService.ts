@@ -36,7 +36,7 @@ export const getItemById = async (itemId: string): Promise<ISItem | null> => {
 export const verifyProfitMargin = (item: { name: string; supplierId: ISupplier }, newPrice: number): void => {
     try {
         const supplier = item.supplierId;
-        const supplierItem = supplier.items.find((si: ISupplierItem) => si.itemName === item.name);
+        const supplierItem = supplier.items.find((si: ISupplierItem) => si.itemName.trim() === item.name.trim());
         if (!supplierItem) {
             throw new Error(`Item ${item.name} not found in supplier's catalog`);
         }

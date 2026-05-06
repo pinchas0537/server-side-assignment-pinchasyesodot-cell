@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { getSupplierById, getSupplierByName } from "../services/supplierService.js";
+import { Supplier } from "../models/Supplier.js";
 
 export const isNameUnique = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -25,8 +26,12 @@ export const isNameUnique = async (req: Request, res: Response, next: NextFuncti
 
 export const supplierExists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        const { id } = req.params;
-        const supplier = await getSupplierById(id as string);
+        const supplierId = req.params.id || req.body.supplierId;
+        if (!supplierId) {
+            res.status(400).json({ error: "Supplier ID is required" });
+            return;
+        }
+        const supplier = await Supplier.findById(supplierId as string).populate("items").select("-__v").lean();
         if (!supplier) {
             res.status(404).json({ error: "Supplier not found" });
             return;

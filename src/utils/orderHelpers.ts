@@ -67,7 +67,7 @@ export const updateItemStock = async (
 ): Promise<void> => {
     try {
         if (quantityChange === 0) return;
-        const itemExists = await Item.findById(itemId).session(session || null);
+        const itemExists = await Item.findById(itemId).session(session ? session : null);
         if (!itemExists) {
             throw new Error(`Item with ID ${itemId} not found`);
         }

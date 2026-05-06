@@ -20,7 +20,7 @@ export const processNewOrder = async (orderData: OrderBase | IOrder): Promise<IO
             ...orderData,
             shopProfit: totalProfit,
         });
-        const savedOrder = await finalOrder.save({ session });
+        const savedOrder = await finalOrder.save();
         for (const orderItem of orderData.items) {
             await updateItemStock(orderItem.itemId.toString(), orderItem.quantity, session);
         }
@@ -28,7 +28,6 @@ export const processNewOrder = async (orderData: OrderBase | IOrder): Promise<IO
         return savedOrder;
     } catch (error: unknown) {
         await session.abortTransaction();
-
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
         throw new Error(`Failed to fetch order: ${errorMessage}`);
     } finally {

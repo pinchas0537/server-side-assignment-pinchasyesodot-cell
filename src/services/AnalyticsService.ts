@@ -34,13 +34,13 @@ export const getMonthlyRevenue = async (): Promise<number> => {
         const result = await OrderModel.aggregate<RevenueResult>([
             {
                 $match: {
-                    createdAt: { $gte: thirtyDaysAgo },
+                    orderDate: { $gte: thirtyDaysAgo },
                 },
             },
             {
                 $group: {
                     _id: null,
-                    totalRevenue: { $sum: "$totalPrice" },
+                    totalRevenue: { $sum: "$shopProfit" },
                 },
             },
         ]);
@@ -58,7 +58,7 @@ export const getWeeklyTopCategory = async (): Promise<CategoryProfitResult | nul
         const result = await OrderModel.aggregate<CategoryProfitResult>([
             {
                 $match: {
-                    createdAt: { $gte: sevenDaysAgo },
+                    orderDate: { $gte: sevenDaysAgo },
                 },
             },
             {
@@ -77,12 +77,7 @@ export const getWeeklyTopCategory = async (): Promise<CategoryProfitResult | nul
                 $group: {
                     _id: "$itemDetails.category",
                     totalProfit: {
-                        $sum: {
-                            $multiply: [
-                                "$items.quantity",
-                                { $subtract: ["$itemDetails.price", "$itemDetails.supplierPrice"] },
-                            ],
-                        },
+                        $sum: "$shopProfit",
                     },
                 },
             },
@@ -107,7 +102,7 @@ export const getDailyTopItem = async (): Promise<ItemProfitResult | null> => {
         const result = await OrderModel.aggregate<ItemProfitResult>([
             {
                 $match: {
-                    createdAt: { $gte: twentyFoutHoursAgo },
+                    orderDate: { $gte: twentyFoutHoursAgo },
                 },
             },
             {
@@ -153,10 +148,37 @@ export const getItemMargins = async (): Promise<{
     try {
         const pipeline: PipelineStage[] = [
             {
+                $lookup: {
+                    from: "suppliers",
+                    localField: "supplierId",
+                    foreignField: "_id",
+                    as: "supplierDetails",
+                },
+            },
+            {
+                $unwind: "$supplierDetails",
+            },
+            {
                 $project: {
                     name: 1,
                     margin: {
-                        $subtract: ["$price", "$supplierPrice"],
+                        $subtract: [
+                            "$consumerPrice",
+                            {
+                                $let: {
+                                    vars: {
+                                        matchedItem: {
+                                            $filter: {
+                                                input: "$supplierDetails.items",
+                                                as: "item",
+                                                cond: { $eq: ["$$item.itemName", "$name"] },
+                                            },
+                                        },
+                                    },
+                                    in: { $arrayElemAt: ["$$matchedItem.price", 0] },
+                                },
+                            },
+                        ],
                     },
                 },
             },
@@ -167,7 +189,7 @@ export const getItemMargins = async (): Promise<{
         const result = await Item.aggregate<ItemMarginResult>(pipeline);
         return {
             highest: result.length > 0 ? result[0] : null,
-            lowest: result.length > 1 ? result[1] : null,
+            lowest: result.length > 0 ? result[result.length - 1] : null,
         };
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
@@ -191,13 +213,40 @@ export const getMostProfitableSupplier = async (): Promise<SupplierProfitResult 
             },
             { $unwind: "$itemDetails" },
             {
+                $lookup: {
+                    from: "suppliers",
+                    localField: "itemDetails.supplierId",
+                    foreignField: "_id",
+                    as: "supplierDetails",
+                },
+            },
+            { $unwind: "$supplierDetails" },
+            {
                 $group: {
-                    _id: "$itemDetails.supplierName",
+                    _id: "$supplierDetails.name",
                     totalProfit: {
                         $sum: {
                             $multiply: [
                                 "$items.quantity",
-                                { $subtract: ["$itemDetails.price", "$itemDetails.supplierPrice"] },
+                                {
+                                    $subtract: [
+                                        "$itemDetails.consumerPrice",
+                                        {
+                                            $let: {
+                                                vars: {
+                                                    matchedItem: {
+                                                        $filter: {
+                                                            input: "$supplierDetails.items",
+                                                            as: "item",
+                                                            cond: { $eq: ["$$item.itemName", "$itemDetails.name"] },
+                                                        },
+                                                    },
+                                                },
+                                                in: { $arrayElemAt: ["$$matchedItem.price", 0] },
+                                            },
+                                        },
+                                    ],
+                                },
                             ],
                         },
                     },
